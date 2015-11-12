@@ -39,6 +39,7 @@ for line in myFile:
     tablicatest.append(line.split())
   i=i+1
 print('\n**************************** \n')
+
 #print(tablicatest[0][0])
 
 for i in range(len(tablicatest)):
@@ -72,6 +73,8 @@ for i, line in enumerate(file_T):
   if x == 5:
     print(line)
 
-file_T.close() """
+file_T.close() 
+
+"""
 
 
