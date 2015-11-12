@@ -75,8 +75,6 @@ for i, line in enumerate(file_T):
 
 file_T.close() 
 
-
-
 """
 
 
