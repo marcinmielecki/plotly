@@ -1,28 +1,25 @@
---Oracle DB creation and insertion of data
+--Oracle DB creation and insertion of data samples
 
---Oracle creation of db
-create table p1 (
-create table p2 (
-create table p3 (
-
+--tworzenie tabeli z zawartoscia procesu
 create table T654 (th13 number(9,3), sigma number(10,4), timestamp date);
 insert into T654 values (0.000,0.0125,To_Date('2015:10:15:09:41:18','yyyy:mm:dd:hh:mi:ss'));
 insert into T654 values (0.063,0.0236,To_Date('2015:10:15:11:01:12','yyyy:mm:dd:hh:mi:ss'));
 insert into T654 values (0.126,0.0351,To_Date('2015:10:15:09:31:07','yyyy:mm:dd:hh:mi:ss'));
 insert into T654 values (0.188,0.1092,To_Date('2015:10:15:11:13:13','yyyy:mm:dd:hh:mi:ss'));
 
-
+--tworzenie tabeli opisujacej proces
 create table T654_desc (ct1 number(4,3), ct2 number(4,3), ebeam1 number(9,3), ebeam2 number(9,3), nevents number(7), vR number(9,3), alpha23 number(9,3),mr1 number(9,3))
 insert into T654_desc values (1,1,7000.,7000.,50000,7200.,1.572,925.);
-
+--------------------------------------------
+--utworzenie madlog
 create table MadLog_DB (ProcessName varchar2(10), 
 ValueSize number(9,3), StartingValue number(9,3), FinishValue number(9,3), NumberOfSteps number(4),
 PC_Name varchar2(20), PC_Core number(2), 
 StartDate date, ElapsedTime number(10), ProcessProgress number(3,2));
 
 
-
-
+---
+--wstawianie do madlog
 
 declare
 a number(9,3);
@@ -46,3 +43,9 @@ select max(rownum) into maxrow from t654;
 progressbar:= maxrow/50;
 insert into MadLog_Db values ('T654', c, 0.000, 1.572, 50,'beast',8,startingDate,elapsed,progressbar);
 end;
+
+-wyswietlanie madlog
+select ProcessName, ValueSize, StartingValue, FinishValue, NumberOfSteps, PC_Name, PC_Core,
+To_char(StartDate,'yyyy.dd.mm hh:mi:ss') StartDate, ElapsedTime, ProcessProgress
+from madlog_db
+-----------------------------------------------------
