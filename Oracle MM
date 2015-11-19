@@ -4,3 +4,9 @@
 create table p1 (
 create table p2 (
 create table p3 (
+
+create table T654 (th13 number(9,3), sigma number(10,4), timestamp date);
+insert into T654 values (0.000,0.0125,To_Date('2015:10:15:09:41:18','yyyy:mm:dd:hh:mi:ss'));
+insert into T654 values (0.063,0.0236,To_Date('2015:10:15:11:01:12','yyyy:mm:dd:hh:mi:ss'));
+insert into T654 values (0.126,0.0351,To_Date('2015:10:15:09:31:07','yyyy:mm:dd:hh:mi:ss'));
+insert into T654 values (0.188,0.1092,To_Date('2015:10:15:11:13:13','yyyy:mm:dd:hh:mi:ss'));
