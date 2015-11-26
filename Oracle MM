@@ -13,7 +13,7 @@ insert into T654_desc values (1,1,7000.,7000.,50000,7200.,1.572,925.);
 --------------------------------------------
 --utworzenie madlog
 create table MadLog_DB (ProcessName varchar2(10), 
-ValueSize number(9,3), StartingValue number(9,3), FinishValue number(9,3), NumberOfSteps number(4),
+First_Col varchar2(20), StartingValue number(9,3), FinishValue number(9,3), NumberOfSteps number(4),
 PC_Name varchar2(20), PC_Core number(2), 
 StartDate date, ElapsedTime number(10), ProcessProgress number(3,2));
 
