@@ -5,6 +5,8 @@ roman 4
 0 0 4000. 4000. 90000 5600. 1.572 955.
 # process
 "e- e- > w2- w2-"
+# i f ns
+0.000 1.572 50 --wartosci copypaste 2gi plik
 # th13 sigma timestamp
 0.000 1.1352 2015:10:20:13:41:18
 0.063 2.0263 2015:10:20:13:42:12
