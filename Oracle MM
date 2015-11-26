@@ -51,3 +51,12 @@ select ProcessName, First_Col, StartingValue, FinishValue, NumberOfSteps, PC_Nam
 To_char(StartDate,'yyyy.dd.mm hh:mi:ss') StartDate, ElapsedTime || ' min' "ELAPSEDTIME", ProcessProgress
 from madlog_db
 -----------------------------------------------------
+declare
+       n date;
+       table_name varchar2(30) := 't654';
+   begin
+       execute immediate 'select min(timestamp) from ' || table_name into n;
+       dbms_output.put_line(n);
+   end;
+
+
