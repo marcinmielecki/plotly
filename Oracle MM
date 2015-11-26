@@ -19,33 +19,35 @@ StartDate date, ElapsedTime number(10), ProcessProgress number(3,2));
 
 
 ---
---wstawianie do madlog
+--------------------wstawianie do madlog procedura
 
-declare
-a number(9,3);
-b number (9,3);
-c number (9,3);
+create or replace procedure insert_into_madlogdb  (p_PROCESSNAME varchar2, p_StartingValue number, p_FINISHVALUE number, p_NUMBEROFSTEPS number, p_PC_NAME varchar2, p_PC_CORE number) as
+--podstawa
+ins_PROCESSNAME varchar2(10):= p_PROCESSNAME; 
+ins_FIRST_COL varchar2(20); --trzeba pobrac
+
+--elapsed
+ins_STARTDAT date;
+ins_ELAPSEDTIME number(10);	
+--progress;
+ins_PROCESSPROGRESS number(3,2);
 maxrow number(10);
-progressbar number(3,2);
-startingDate date;
-endingDate date;
-elapsed number(10);
+
 begin
-select th13 into a from t654 where rownum <3
-minus
-select th13 from t654 where rownum = 1;
-select th13 into b from t654 where rownum = 1;
-select timestamp into startingdate from t654 where timestamp = (select min(timestamp) from t654);
-select timestamp into endingdate from t654 where timestamp = (select max(timestamp) from t654);
-c := a-b;
-select (max(timestamp) - min(timestamp))*1440 into elapsed from t654;
+--startdat+elapsed time from start to last)
+select timestamp into ins_STARTDAT from t654 where timestamp = (select min(timestamp) from t654);
+select (max(timestamp) - min(timestamp))*1440 into ins_ELAPSEDTIME from t654;
+
+--progress
 select max(rownum) into maxrow from t654;
-progressbar:= maxrow/50;
-insert into MadLog_Db values ('T654', c, 0.000, 1.572, 50,'beast',8,startingDate,elapsed,progressbar);
+ins_PROCESSPROGRESS:= maxrow/p_NUMBEROFSTEPS;
+
+--insert into MadLog_Db values (TableName, c
+insert into MadLog_Db values (ins_PROCESSNAME, ins_FIRST_COL, p_STARTINGVALUE, p_FINISHVALUE, p_NUMBEROFSTEPS, p_PC_NAME, p_PC_CORE, ins_STARTDAT, ins_ELAPSEDTIME, ins_PROCESSPROGRESS);
 end;
 
 -wyswietlanie madlog
-select ProcessName, ValueSize, StartingValue, FinishValue, NumberOfSteps, PC_Name, PC_Core,
+select ProcessName, First_Col, StartingValue, FinishValue, NumberOfSteps, PC_Name, PC_Core,
 To_char(StartDate,'yyyy.dd.mm hh:mi:ss') StartDate, ElapsedTime, ProcessProgress
 from madlog_db
 -----------------------------------------------------
