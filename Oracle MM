@@ -48,6 +48,6 @@ end;
 
 -wyswietlanie madlog
 select ProcessName, First_Col, StartingValue, FinishValue, NumberOfSteps, PC_Name, PC_Core,
-To_char(StartDate,'yyyy.dd.mm hh:mi:ss') StartDate, ElapsedTime, ProcessProgress
+To_char(StartDate,'yyyy.dd.mm hh:mi:ss') StartDate, ElapsedTime || ' min' "ELAPSEDTIME", ProcessProgress
 from madlog_db
 -----------------------------------------------------
