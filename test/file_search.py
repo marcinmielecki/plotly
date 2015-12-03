@@ -1,6 +1,6 @@
 import cx_Oracle, os
 
-print("Prosze podawac sciezki uzywajac '//' oraz konczac tym samym symbolem, np. C://Windows// lub //home//")
+print("Prosze podawac sciezki uzywajac '//' oraz konczac tym samym symbolem, np. C://Windows// lub //home//.")
 
 folder_check=False
 while(folder_check==False):
