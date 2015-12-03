@@ -7,7 +7,7 @@ cursor = connection.cursor()
 print(connection.version)
 print(connection.dsn)
 
-cursor.execute('select * from newton')
+cursor.execute('select * from t654')
 for result in cursor:
     print(result)
 cursor.close()
