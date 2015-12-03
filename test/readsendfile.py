@@ -31,7 +31,7 @@ print('\n**************************** \n')
 
 myFile = open('T439_e-e-_w2-w2-_th13_SR.txt','r',encoding='UTF-8')
 
-linelist=range(linenumb,lines_len)
+#linelist=range(linenumb,lines_len)
 i=0
 for line in myFile:
   if i in linelist:
