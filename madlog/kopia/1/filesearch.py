@@ -1,57 +1,6 @@
 import sys
 import cx_Oracle
 import os
-from time import sleep
-from tqdm import tqdm
-
-connection = cx_Oracle.Connection('rt_projekt/projekt@umain')  # dane do logowania
-cursor = connection.cursor()
-
-
-def dbmelt(db_table_name, db_ifns_info, db_machinfo_info, db_tabofvar):
-    global connection
-    global cursor
-    exist_tables = []
-    tablecount = 0  # licznik tabel zgodnych z argumentem
-    cursor.execute('select table_name from user_tables order by table_name')  # kursor
-    for tablenames in cursor:  # petla ktora szuka zgodnych tabel
-        if (db_table_name in tablenames) or (db_table_name.title() in tablenames):
-            # print(tablenames[0]) #wyswietlanie zgodnych wynikow
-            exist_tables.append(tablenames[0])
-            tablecount += 1  # inkrementacja licznika
-    print("wololololo" + str(tablecount))
-    if tablecount == 0:  # gdy nie istnieja tabele zgodne z plikiem w bazie danych
-        temp = ("insert into madlog_db (PROCESSNAME, STARTINGVALUE, FINISHVALUE, NUMBEROFSTEPS, PC_NAME, PC_CORE) "
-                "values ('"+str(db_table_name)+"',"+str(db_ifns_info[0][0])+","+str(db_ifns_info[0][1])+","+str(db_ifns_info[0][2])
-                +",'"+str(db_machinfo_info[0][0])+"',"+str(db_machinfo_info[0][1])+")")
-        cursor.execute(temp)
-        temp = ('create table ' + db_table_name + ' (TH13 number(9,3), SIGMA number(10,4), TIMESTAMP date)')
-        cursor.execute(temp)
-
-    temp = ('select max(th13) from ' + db_table_name)  # wyszukanie ostatniej wartosci
-    print(temp)
-    cursor.execute(temp)
-    for db_temp in cursor:
-        db_lastvalue = db_temp
-    print(type(db_lastvalue[0]))
-    print('dblastvaluie ' + str(db_lastvalue[0]))
-    if db_lastvalue[0] is None:  # gdy nie ma nic, to to sie ma wykonac
-        for i in range(len(db_tabofvar)):
-            temp = ("INSERT INTO "+db_table_name+" (TH13,SIGMA,TIMESTAMP) VALUES ("+db_tabofvar[i][0]+", "+db_tabofvar[i][1]+", to_date('"+db_tabofvar[i][2]+"','YYYY:MM:DD:HH24:MI:SS'))")
-            print(temp)
-            cursor.execute(temp)
-    else:  # gdy zakonczono na jakiejs wartosci
-        print(format(db_lastvalue[0], '.6g'))
-        for pos, i in enumerate(db_tabofvar):
-            if str(format(db_lastvalue[0], '.3f')) in i:
-                print('success')
-                print(pos)
-                temp2 = pos+1
-        # temp2 = db_tabofvar.index(str(db_lastvalue[0]))
-        for i in range(temp2, len(db_tabofvar)):
-            temp = ("INSERT INTO "+db_table_name+" (TH13,SIGMA,TIMESTAMP) VALUES ("+db_tabofvar[i][0]+", "+db_tabofvar[i][1]+", to_date('"+db_tabofvar[i][2]+"','YYYY:MM:DD:HH24:MI:SS'))")
-            print(temp)
-            cursor.execute(temp)
 
 
 def getinfo(cur_file):
@@ -106,15 +55,13 @@ def getinfo(cur_file):
     myFile.close()
     table_name = cur_file.split('_')[0]
     # W TYM MIEJSCU MAJA WYKONYWAC SIE OPERACJE NA DB W OSOBNEJ FUKNCJI
-    dbmelt(table_name, ifns_info, machinfo_info, tabofvar)
-    '''
     print(table_name)
     print('insert into madlog_db (PROCESSNAME, STARTINGVALUE, FINISHVALUE, NUMBEROFSTEPS, PC_NAME, PC_CORE) values ('
           , table_name, ',', ifns_info[0][0], ',', ifns_info[0][1], ',', ifns_info[0][2], ',', machinfo_info[0][0], ',',
           machinfo_info[0][1], ')')
     for i in range(len(tabofvar)):
         print('INSERT INTO', table_name, '(TH13,SIGMA,TIMESTAMP) VALUES (', tabofvar[i][0], ',', tabofvar[i][1], ',', tabofvar[i][2], ')')
-        print('\n') '''
+        print('\n')
 
 
 def filesearch():
@@ -141,10 +88,10 @@ def filesearch():
 def main():
     file_table = filesearch()  # wywolanie funkcji wyszukujacej pliki w folderze
     print(file_table)
-    for fileinfo in tqdm(file_table):  # petla, ktora obrabia kazdy z tych plikow z osobna
+    for fileinfo in file_table:  # petla, ktora obrabia kazdy z tych plikow z osobna
         getinfo(fileinfo)
-        sleep(2)
-    connection.commit()
 
 if __name__ == "__main__":
     main()
+
+
