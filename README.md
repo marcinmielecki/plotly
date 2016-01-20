@@ -38,4 +38,5 @@ UMAIN =
 
 USAGE:
 
-1. Just run main.py located in /madlog/ directory in your prefered Python IDE.
+1. Put main.py in folder containing TXXX_(...).txt files.
+2. Run main.py located in /madlog/ directory in your prefered Python IDE.
