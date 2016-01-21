@@ -49,3 +49,61 @@ select ProcessName, ValueSize, StartingValue, FinishValue, NumberOfSteps, PC_Nam
 To_char(StartDate,'yyyy.dd.mm hh:mi:ss') StartDate, ElapsedTime, ProcessProgress
 from madlog_db
 -----------------------------------------------------
+-- aktualizacja bazy danych wersja 2.13
+
+CREATE OR REPLACE PROCEDURE UPD_MADLOG_DB AS
+elapsedtime_upd madlog_db.elapsedtime%TYPE;
+wyk VARCHAR2(200);
+processprogress_upd madlog_db.ProcessProgress%TYPE;
+CURSOR Verify_cur IS SELECT processname, NUMBEROFSTEPS FROM madlog_db WHERE processprogress != 1;
+BEGIN
+    FOR i IN Verify_cur LOOP
+        --progress
+        wyk:= 'select max(rownum) from ' || i.processname;
+        EXECUTE IMMEDIATE wyk INTO processprogress_upd;
+        processprogress_upd := processprogress_upd / i.NUMBEROFSTEPS;
+        --elapsed
+        wyk:= 'select (max(timestamp)-min(timestamp))*1440 from ' || i.processname;
+        EXECUTE IMMEDIATE wyk INTO elapsedtime_upd;
+        --DBMS_OUTPUT.PUT_LINE(' Progress wynosi ' || processprogress_upd || ', a elapsed ' || elapsedtime_upd);
+        UPDATE MADLOG_DB SET elapsedtime = elapsedtime_upd, processprogress = processprogress_upd WHERE MADLOG_DB.processname = i.processname;
+    END LOOP;
+END;
+
+-----------------------------------------------------
+-- wstawianie wartosci do tabeli gł na podstawie wartosci zawartej w tabelach zewnetrznych
+
+CREATE OR REPLACE PROCEDURE insert_into_madlogdb  (p_PROCESSNAME VARCHAR2, p_StartingValue NUMBER, p_FINISHVALUE NUMBER, p_NUMBEROFSTEPS NUMBER, p_PC_NAME VARCHAR2, p_PC_CORE NUMBER) AS
+--podstawa
+ins_PROCESSNAME VARCHAR2(10):= p_PROCESSNAME;
+ins_FIRST_COL VARCHAR2(20); --trzeba pobrac
+ 
+--elapsed
+ins_STARTDAT DATE;
+ins_ELAPSEDTIME NUMBER(10);    
+--progress;
+ins_PROCESSPROGRESS NUMBER(3,2);
+maxrow NUMBER(10);
+--dzialanie
+wyk VARCHAR2(200);
+BEGIN
+--startdat+elapsed time from start to last)
+wyk:= 'select timestamp from ' || p_PROCESSNAME || ' where timestamp = (select min(timestamp) from ' || p_PROCESSNAME || ')';
+EXECUTE IMMEDIATE wyk INTO ins_STARTDAT;
+wyk := 'select (max(timestamp) - min(timestamp))*1440 from ' || p_PROCESSNAME;
+EXECUTE IMMEDIATE wyk INTO ins_ELAPSEDTIME;
+ 
+--fistcol
+wyk := 'select column_name from all_tab_columns where table_name = upper(' || ins_PROCESSNAME || ') and rownum = 1';
+EXECUTE IMMEDIATE wyk INTO ins_FIRST_COL;
+ 
+--progress
+wyk :='select max(rownum) from ' || ins_PROCESSNAME;
+EXECUTE IMMEDIATE wyk INTO maxrow;
+ins_PROCESSPROGRESS:= maxrow/p_NUMBEROFSTEPS;
+ 
+--insert into MadLog_Db values (TableName, c
+INSERT INTO MadLog_Db VALUES (ins_PROCESSNAME, ins_FIRST_COL, p_STARTINGVALUE, p_FINISHVALUE, p_NUMBEROFSTEPS, p_PC_NAME, p_PC_CORE, ins_STARTDAT, ins_ELAPSEDTIME, ins_PROCESSPROGRESS);
+END;
+
+-----------------------------------------------------
