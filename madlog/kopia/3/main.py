@@ -7,34 +7,12 @@ import csv
 
 connection = cx_Oracle.Connection('rt_projekt/projekt@umain')  # dane do logowania
 cursor = connection.cursor()
-cursor.execute("ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY:MM:DD:HH24:MI:SS'")
-
-
-def create_resultfile(f_table_name, f_tabofvar, f_th13_sample, f_ifns_info, f_ifns_info_steps):
-    with open('file_data.txt', 'a') as f:
-        if os.stat('file_data.txt').st_size == 0:
-            print('table_name th_length th_last expected_val progress_cur progress_end', file=f)
-            print('Utworzono nowy plik z danymi.')
-        else:
-            print('Znaleziono istniejacy plik z danymi.')
-
-        th_last = str(f_tabofvar[-1][0])
-        th_length = len(str(f_th13_sample).split('.')[1])
-        print(f_tabofvar)
-        progress_cur = len(f_tabofvar)
-        print(th_last+" "+str(th_length))
-        temp = (str(f_table_name) + " " + str(th_length) + " " + str(th_last) + " " + str(f_ifns_info) + " " + str(progress_cur) + " " + str(f_ifns_info_steps))
-        f.write(temp+'\n')
-        f.close()
-        finito = (th_length, progress_cur)
-        return finito
-
+# cursor.execute("ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY:MM:DD:HH24:MI:SS'")
 
 def dbmelt(db_table_name, db_ifns_info, db_machinfo_info, db_tabofvar):
     global connection
     global cursor
     exist_tables = []
-    process_values = []
     tablecount = 0  # licznik tabel zgodnych z argumentem
     cursor.execute('select table_name from user_tables order by table_name')  # kursor
     for tablenames in cursor:  # petla ktora szuka zgodnych tabel
@@ -47,15 +25,6 @@ def dbmelt(db_table_name, db_ifns_info, db_machinfo_info, db_tabofvar):
         temp = ("insert into madlog_db (PROCESSNAME, STARTINGVALUE, FINISHVALUE, NUMBEROFSTEPS, PC_NAME, PC_CORE) "
                 "values ('"+str(db_table_name)+"',"+str(db_ifns_info[0][0])+","+str(db_ifns_info[0][1])+","+str(db_ifns_info[0][2])
                 +",'"+str(db_machinfo_info[0][0])+"',"+str(db_machinfo_info[0][1])+")")
-        # ZASTAPIC TYM PONIZEJ !!!
-
-        # temp = 'insert into madlog_db (PROCESSNAME, STARTINGVALUE, FINISHVALUE, NUMBEROFSTEPS, PC_NAME, PC_CORE)' \
-        #       ' values (:1, :2, :3, :4, :5, :6)'
-        # cursor.prepare(temp)
-        # temp = (db_table_name, db_ifns_info[0][0], db_ifns_info[0][1], db_ifns_info[0][2], db_machinfo_info[0][0], db_machinfo_info[0][1])
-        # process_values.append(temp)
-        # cursor.executemany(None, process_values)
-
         cursor.execute(temp)
         temp = ('create table ' + db_table_name + ' (TH13 number(9,3), SIGMA number(10,4), TIMESTAMP date)')
         cursor.execute(temp)
@@ -82,8 +51,6 @@ def dbmelt(db_table_name, db_ifns_info, db_machinfo_info, db_tabofvar):
         # temp2 = db_tabofvar.index(str(db_lastvalue[0]))
         for i in range(temp2, len(db_tabofvar)):
             temp = ("INSERT INTO "+db_table_name+" (TH13,SIGMA,TIMESTAMP) VALUES ("+db_tabofvar[i][0]+", "+db_tabofvar[i][1]+", to_date('"+db_tabofvar[i][2]+"','YYYY:MM:DD:HH24:MI:SS'))")
-            # ZASTAPIC TYM PONIZEJ !!!
-
             # temp = ("INSERT INTO "+db_table_name+" (TH13,SIGMA,TIMESTAMP) VALUES (:1, :2, :3)")
             # cursor.prepare(temp)
             # cursor.executemany(None, tabofvar)
@@ -121,50 +88,45 @@ def getinfo(cur_file):
                 machinfo_info.append(line.split())
     print(ifns_info[0][0], ifns_info[0][1], ifns_info[0][2])
     print(machinfo_info[0][0], machinfo_info[0][1])
+    myFile = open(cur_file, 'r', encoding='UTF-8') # zastapic 'with open...'
 
-    with open(cur_file, 'r', encoding='UTF-8') as myFile:  # zastapic 'with open...'
+    linenumb_sigma += 1
 
-        linenumb_sigma += 1
+    lines = myFile.readlines()  # wczytywanie linii do bufora po kolei
+    lines_len = len(lines)  # koncowa granica pliku
+    lines_range = range(linenumb_sigma, lines_len)  # zakres na ktorym sczytywane sa dane
 
-        lines = myFile.readlines()  # wczytywanie linii do bufora po kolei
-        lines_len = len(lines)  # koncowa granica pliku
-        lines_range = range(linenumb_sigma, lines_len)  # zakres na ktorym sczytywane sa dane
+    lines = None  # czyszczenie bufora
 
-        lines = None  # czyszczenie bufora
+    myFile.seek(0)  # przesuniecie wskaznika w pliku na poczatek
 
-        myFile.seek(0)  # przesuniecie wskaznika w pliku na poczatek
-        '''
-        # to ponizej do zastapienia
-        i = 0
-        for line in myFile:  # funkcja przypisujaca zmienne do tablicy [# th13 sigma timestamp]
-            if i in lines_range:  # warunek, ktory sprawdza czy jestesmy w zakresie
-                # print(line.split())
-                tabofvar.append(line.split())
-            i += 1'''
+    # to ponizej do zastapienia
+    i = 0
+    for line in myFile:  # funkcja przypisujaca zmienne do tablicy [# th13 sigma timestamp]
+        if i in lines_range:  # warunek, ktory sprawdza czy jestesmy w zakresie
+            # print(line.split())
+            tabofvar.append(line.split())
+        i += 1
 
     # FUNKCJA NIZEJ MA ZASTAPIC GDY SIE ZAIMPLEMENTUJE EXECUTEMANY/CURSOR PREPARE
-
-    # with open('C:\\Users\\Kamil\\Desktop\\docs\\python_projekt\\T654_pp_e-e-jj_th13_SR.txt', 'r', encoding='UTF-8') as myFile:
+    '''
+    with open('C:\\Users\\Kamil\\Desktop\\docs\\python_projekt\\T654_pp_e-e-jj_th13_SR.txt', 'r', encoding='UTF-8') as myFile:
         i = 0
-        j = 0
         readCSV = csv.reader(myFile, delimiter=' ')
         for row in readCSV:
             if i in lines_range:
                 th13 = float(row[0])
-                if (i == lines_range[0]+1) and (j == 0):
-                    j += 1
-                    th13_sample = th13
-                sigma = float(row[1])
+                timestamp = float(row[1])
                 date = row[2]
-                temp = (th13, sigma, date)
+                temp = (th13, timestamp, date)
                 tabofvar.append(temp)
             i += 1
+    '''
 
-    #myFile.close()
+    myFile.close()
     table_name = cur_file.split('_')[0]
-    sample_info = create_resultfile(table_name, tabofvar, th13_sample, ifns_info[0][1], ifns_info[0][2])
     # W TYM MIEJSCU MAJA WYKONYWAC SIE OPERACJE NA DB W OSOBNEJ FUKNCJI
-    # dbmelt(table_name, ifns_info, machinfo_info, tabofvar)
+    dbmelt(table_name, ifns_info, machinfo_info, tabofvar)
     '''
     print(table_name)
     print('insert into madlog_db (PROCESSNAME, STARTINGVALUE, FINISHVALUE, NUMBEROFSTEPS, PC_NAME, PC_CORE) values ('
