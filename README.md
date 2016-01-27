@@ -6,7 +6,8 @@ CONFIGURATION:
 
 1. First you need working python3 environment. I RECOMMEND version 3.4.
 2. Then:
-  2.1. Get Oracle Instant client from this site:
+
+2.1. Get Oracle Instant client from this site:
 
 http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html
 
@@ -40,3 +41,23 @@ USAGE:
 
 1. Put main.py in folder containing TXXX_(...).txt files.
 2. Run main.py located in /madlog/ directory in your prefered Python IDE.
+
+IMPORTANT FILE INFORMATION:
+
+1. Files should containt these headers:
+
+  /# machine CPUs
+  
+    after which should be machine name + number of cpu cores
+
+  /# i f ns
+  
+    after which should be information in following format: X X X
+
+  /# mr1 sigma timestamp
+  
+    after this file should contain only numbers ready to be send to database in format like below:
+    
+    179.91967871485943 0.7780251980850815 2015:12:28:16:01:32
+    
+    259.83935742971886 0.6713823250237619 2015:12:28:17:31:41
